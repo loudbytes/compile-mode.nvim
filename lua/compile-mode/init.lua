@@ -251,7 +251,7 @@ local runcommand = a.void(
 		log.debug("opening compilation buffer...")
 
 		local prev_win = vim.api.nvim_get_current_win()
-		local bufnr = utils.split_unless_open(
+		local bufnr = utils.split_or_replace_open(
 			{ fname = config.buffer_name },
 			vim.tbl_extend("force", param.smods or {}, { noswapfile = true }),
 			param.count
@@ -325,7 +325,7 @@ local runcommand = a.void(
 		local fmt_elapsed = string.format(", duration %.2f s", elapsed)
 
 		set_lines(bufnr, -1, -1, {
-			compilation_message .. " at " .. time() ..  fmt_elapsed,
+			compilation_message .. " at " .. time() .. fmt_elapsed,
 			"",
 		})
 

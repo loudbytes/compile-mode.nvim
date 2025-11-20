@@ -161,6 +161,53 @@ function M.split_unless_open(opts, smods, count)
 	return bufnr
 end
 
+---If `fname` has a window open, do nothing.
+---Otherwise, check if we can replace an existing window, if not split a new window (and possibly buffer) open for that file, respecting split mods.
+---
+---@param opts { fname: string } | { bufnr: integer }
+---@param smods SMods
+---@param count integer
+---@return integer bufnr the identifier of the buffer for `fname`
+function M.split_or_replace_open(opts, smods, count)
+	local bufnr
+	if opts.bufnr then
+		bufnr = opts.bufnr
+	else
+		bufnr = vim.fn.bufadd(opts.fname)
+	end
+
+	if smods.hide then
+		return bufnr
+	end
+
+	local winnrs = vim.fn.win_findbuf(bufnr)
+
+	if #winnrs == 0 then
+		local curr_win = vim.api.nvim_get_current_win()
+		local wins = vim.api.nvim_list_wins()
+		if #wins == 1 then
+			vim.cmd({ cmd = "sbuffer", args = { bufnr }, mods = smods })
+
+			if count ~= 0 and count ~= nil then
+				vim.cmd({ cmd = "resize", args = { count }, mods = smods })
+			end
+		else
+			for _, win in ipairs(wins) do
+				if win ~= curr_win then
+					vim.api.nvim_set_current_win(win)
+					vim.cmd({ cmd = "buffer", args = { bufnr }, mods = smods })
+
+					if count ~= 0 and count ~= nil then
+						vim.cmd({ cmd = "resize", args = { count }, mods = smods })
+					end
+				end
+			end
+		end
+	end
+
+	return bufnr
+end
+
 ---@param filename string
 ---@param error CompileModeError
 ---@param smods SMods
