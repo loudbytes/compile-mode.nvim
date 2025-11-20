@@ -200,6 +200,8 @@ function M.split_or_replace_open(opts, smods, count)
 					if count ~= 0 and count ~= nil then
 						vim.cmd({ cmd = "resize", args = { count }, mods = smods })
 					end
+
+					break
 				end
 			end
 		end
